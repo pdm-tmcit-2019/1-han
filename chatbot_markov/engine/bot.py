@@ -3,6 +3,8 @@
 from gensim.models import word2vec
 from janome.tokenizer import Tokenizer
 import json, random
+import codecs
+import jsonldParser as jp 
 
 model_file = 'w2v_model.model'
 markov_file = 'otake_markov.json'
@@ -56,19 +58,31 @@ def word_choice(sel):
     ran = random.choice(list(keys))
     return ran
 
+def get_sentence(sentence):
+
+	json_file = open("temp/chat_temp.jsonld", 'r', encoding='utf-8')
+	json_object = json.load(json_file)
+
+	json_object["text"]["@value"] = sentence
+
+	new_json_file = open('jsonld_return/chat_return.jsonld', 'w')
+	json.dump(json_object, new_json_file, indent=2, ensure_ascii=False)
+	
+
 def main():
-    while True:
-        s = input('you  :')
-        if s == 'quit':
-            break
-            exit(0)
-        word = tokenize(s)
-        if not word == '@':
-            reply = load_w2v(word)
-        else:
-            reply = ''
-        sentence = make_sentence(reply)
-        print('otake_bot:' + sentence)
+    jp.loadJsonld('myMessageOnChat.jsonld')
+    text = jp.getChatMessage()
+    s = ''.join(text)
+    print(s)
+    word = tokenize(s)
+    if not word == '@':
+        reply = load_w2v(word)
+    else:
+        reply = ''
+    sentence = make_sentence(reply)
+    print('otake_bot:' + sentence)
+
+    get_sentence(sentence)
 
 if __name__ == '__main__':
     main()
